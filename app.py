@@ -48,7 +48,7 @@ with st.sidebar:
     st.title("Snelle Oplossingen")
     selected = option_menu(
         menu_title=None,
-        options=["Printer", "Internet", "Applicatie Rechten"],
+        options=["Printer", "Internet", "Applicatie Rechtens"],
     )
     st.markdown("---")
 
