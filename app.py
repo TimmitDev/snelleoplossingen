@@ -1,67 +1,43 @@
-import streamlit as st
-from streamlit_option_menu import option_menu
-import time
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 
-# Gebruik hele scherm
-st.set_page_config(layout="wide")
+# Defineer App met de standaard naam __name__
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-# Haal Watermerk weg van Streamlit
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    oplossing = db.Column(db.String)
 
-# Printer Oplossingen Pagina / Function
-def printer_oplossingen():
-    st.title(f"{selected}'s Snelle Oplossingen")
-    st.markdown("---")
-    st.subheader("Printer Toevoegen op HP PRO X2")
-    st.markdown("> Oplossing...")
-    st.markdown("---")
-    st.subheader("Printer Verwijderen op HP PRO X2")
-    st.markdown("> Oplossing...")
+# Main Page (route)
+@app.route('/')
+def index():
+    # Laat alle oplossingen zien
+    todo_list = Todo.query.all()
+    return render_template('main.html', todo_list=todo_list)
 
-# Internet Oplossingen Pagina / Function
-def internet_oplossingen():
-    st.title(f"{selected}'s Snelle Oplossingen")
-    st.markdown("---")
-    st.subheader("Eduroam verbinden op HP PRO X2")
-    st.markdown("> Oplossing...")
-    st.markdown("---")
+@app.route('/add', methods=["POST"])
+def add():
+    # Nieuwe oplossing toevoegen
+    title = request.form.get("title")
+    oplossing = request.form.get("oplossing")
+    new_todo= Todo(title=title, oplossing=oplossing)
+    db.session.add(new_todo)
+    db.session.commit()
+    return redirect(url_for("index"))
 
-def apprechten_oplossingen():
-    st.title(f"{selected} Snelle Oplossingen")
-    st.markdown("---")
-    st.subheader("Presto Account Rechtens")
-    st.markdown("> Oplossing...")
-    st.markdown("---")
+@app.route("/verwijder/<int:todo_id>")
+def delete(todo_id):
+    # Verwijder een oplossing
+    todo = Todo.query.filter_by(id=todo_id).first()
+    db.session.delete(todo)
+    db.session.commit()
+    return redirect(url_for("index"))
 
-    
-
-# Sidebar met categorieën
-with st.sidebar:
-    st.success("Versie 0.1")
-    st.title("Snelle Oplossingen")
-    selected = option_menu(
-        menu_title=None,
-        options=["Printer", "Internet", "Applicatie Rechtens"],
-    )
-    st.markdown("---")
-
-    st.title("Snelle Links")
-    st.write("[Magister Onderwijzend Formulier](#)")
-    st.write("[Magister Ondersteunend Formulier](#)")
-
-# Gebruik de code die in de printer_oplossingen function staat en voer hier uit als de gebruiker op Printer klikt.
-if selected == "Printer":
-    printer_oplossingen()
-
-if selected == "Internet":
-    internet_oplossingen()
-
-if selected == "Applicatie Rechten":
-    apprechten_oplossingen()
+# Door deze command kan de server starten en start de database
+if __name__ == "__main__":
+    db.create_all()
+    app.run(debug=True)
