@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.css">
+    <title>Oplossingbeheer</title>
+</head>
+<body>
+    <div class="ui container"  style="margin-top: 50px;" >
+        <h2 class="ui center aligned header">Oplossingbeheer</h2>
+
+        <form class="ui form" action="/add" method="post">
+            <div class="field">
+                <label for="title">Oplossing Titel:</label>
+                <input class="field" type="text" name="title" placeholder="Vul hier de titel in..">
+                <br>
+                <label  style="margin-top: 10px;" for="title">Oplossing:</label>
+                <textarea name="oplossing" placeholder="Vul hier de oplossing in.." cols="30" rows="10"></textarea>
+                <br>
+                <button  style="margin-top: 10px; margin-bottom: 20px;" class="ui blue button" type="submit">Voeg Oplossing Toe</button>
+            </div>
+        </form>
+        
+
+        {% for todo in todo_list %}
+        <div class="ui segment">
+
+            <h3 class="ui big header" > {{ todo.title }} </h3>
+            <p> {{ todo.oplossing }} </p>
+            
+            <a class="ui red button" href="/verwijder/{{ todo.id }}">Verwijder</a>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    
+
+
+</body>
+</html>
